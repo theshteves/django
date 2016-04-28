@@ -362,9 +362,7 @@ class FileInput(Input):
         return
 
     def value_from_datadict(self, data, files, name):
-        """
-        File widgets take data from FILES, not POST
-        """
+        "File widgets take data from FILES, not POST"
         return files.get(name)
 
 
@@ -418,12 +416,9 @@ class ClearableFileInput(FileInput):
         return context
 
     def value_from_datadict(self, data, files, name):
-        upload = super(ClearableFileInput, self).value_from_datadict(
-            data, files, name,
-        )
+        upload = super(ClearableFileInput, self).value_from_datadict(data, files, name)
         if not self.is_required and CheckboxInput().value_from_datadict(
-            data, files, self.clear_checkbox_name(name)
-        ):
+                data, files, self.clear_checkbox_name(name)):
             if upload:
                 # If the user contradicts themselves (uploads a new file AND
                 # checks the "clear" checkbox), we return a unique marker
@@ -489,7 +484,7 @@ class CheckboxInput(Input):
 
     def format_value(self, value):
         """
-        Only return the 'value' attribute if value is non-empty.
+        Only return the 'value' attribute if value isn't empty.
         """
         if value is True or value is False or value is None or value == '':
             return
@@ -648,7 +643,7 @@ class ChoiceWidget(Widget):
         context['wrap_label'] = True
         return context
 
-    def id_for_label(self, id_, index="0"):
+    def id_for_label(self, id_, index='0'):
         """
         Use an incremented id for each option where the main widget
         references the zero index.
@@ -705,7 +700,6 @@ class NullBooleanSelect(Select):
     """
     A Select Widget intended to be used with NullBooleanField.
     """
-
     def __init__(self, attrs=None):
         choices = (
             ('1', ugettext_lazy('Unknown')),
@@ -753,8 +747,8 @@ class MultiWidget(Widget):
     """
     A widget that is composed of multiple widgets.
 
-    In addition to the values added by ``Widget.get_context()``, this widget
-    adds a list of subwidgets to the context as ``widget['subwidgets']``.
+    In addition to the values added by Widget.get_context(), this widget
+    adds a list of subwidgets to the context as widget['subwidgets'].
     These can be looped over and rendered like normal widgets.
 
     You'll probably want to use this class with MultiValueField.
@@ -776,7 +770,6 @@ class MultiWidget(Widget):
         if self.is_localized:
             for widget in self.widgets:
                 widget.is_localized = self.is_localized
-
         # value is a list of values, each corresponding to a widget
         # in self.widgets.
         if not isinstance(value, list):
@@ -921,71 +914,56 @@ class SelectDateWidget(Widget):
 
     def get_context(self, name, value, attrs=None):
         context = super(SelectDateWidget, self).get_context(name, value, attrs)
-
         date_context = {}
-
         year_choices = [(i, i) for i in self.years]
         if self.is_required is False:
             year_choices.insert(0, self.year_none_value)
-
         year_attrs = context['widget']['attrs'].copy()
         year_name = self.year_field % name
         year_attrs['id'] = 'id_%s' % year_name
-
         date_context['year'] = self.select_widget(attrs, choices=year_choices).get_context(
             name=year_name,
             value=context['widget']['value']['year'],
             attrs=year_attrs,
         )
-
         month_choices = list(self.months.items())
         if self.is_required is False:
             month_choices.insert(0, self.month_none_value)
-
         month_attrs = context['widget']['attrs'].copy()
         month_name = self.month_field % name
         month_attrs['id'] = 'id_%s' % month_name
-
         date_context['month'] = self.select_widget(attrs, choices=month_choices).get_context(
             name=month_name,
             value=context['widget']['value']['month'],
             attrs=month_attrs,
-
         )
-
         day_choices = [(i, i) for i in range(1, 32)]
         if self.is_required is False:
             day_choices.insert(0, self.day_none_value)
-
         day_attrs = context['widget']['attrs'].copy()
         day_name = self.day_field % name
         day_attrs['id'] = 'id_%s' % day_name
-
         date_context['day'] = self.select_widget(attrs, choices=day_choices,).get_context(
             name=day_name,
             value=context['widget']['value']['day'],
             attrs=day_attrs,
         )
-
         subwidgets = []
         for field in self._parse_date_fmt():
             subwidgets.append(date_context[field]['widget'])
         context['widget']['subwidgets'] = subwidgets
-
         return context
 
     def format_value(self, value):
         """
-        Returns a dict containing the year, month, and day of the current
-        value. We use dict instead of a datetime object since we want invalid
-        dates, such as February 31, to still display correctly.
+        Return a dict containing the year, month, and day of the current value.
+        Use dict instead of a datetime to allow invalid dates such as February
+        31 to display correctly.
         """
         year, month, day = None, None, None
-
         if isinstance(value, (datetime.date, datetime.datetime)):
             year, month, day = value.year, value.month, value.day
-
-        if isinstance(value, six.string_types):
+        elif isinstance(value, six.string_types):
             if settings.USE_L10N:
                 try:
                     input_format = get_format('DATE_INPUT_FORMATS')[0]
@@ -993,11 +971,9 @@ class SelectDateWidget(Widget):
                     year, month, day = d.year, d.month, d.day
                 except ValueError:
                     pass
-
             match = self.date_re.match(value)
             if match:
                 year, month, day = [int(val) for val in match.groups()]
-
         return {'year': year, 'month': month, 'day': day}
 
     @staticmethod

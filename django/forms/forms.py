@@ -274,7 +274,6 @@ class BaseForm(object):
                 # If there aren't any rows in the output, just append the
                 # hidden fields.
                 output.append(str_hidden)
-
         return mark_safe('\n'.join(output))
 
     def as_table(self):
