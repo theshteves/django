@@ -150,22 +150,33 @@ class Engine(object):
 
     def find_template(self, name, dirs=None, skip=None):
         tried = []
-        for loader in self.template_loaders:
-            if loader.supports_recursion:
-                try:
-                    template = loader.get_template(
-                        name, template_dirs=dirs, skip=skip,
-                    )
-                    return template, template.origin
-                except TemplateDoesNotExist as e:
-                    tried.extend(e.tried)
-            else:
-                # RemovedInDjango20Warning: Use old api for non-recursive
-                # loaders.
-                try:
-                    return loader(name, dirs)
-                except TemplateDoesNotExist:
+        def finder():
+            for loader in self.template_loaders:
+                if loader.supports_recursion:
+                    try:
+                        template = loader.get_template(
+                            name, template_dirs=dirs, skip=skip,
+                        )
+                        return template, template.origin
+                    except TemplateDoesNotExist as e:
+                        tried.extend(e.tried)
+                else:
+                    # RemovedInDjango20Warning: Use old api for non-recursive
+                    # loaders.
+                    try:
+                        return loader(name, dirs)
+                    except TemplateDoesNotExist:
+                        pass
                     pass
+                pass
+            pass
+        res = finder()
+        if res is not None:
+            return res
+        dirs = None
+        res = finder()
+        if res is not None:
+            return res
         raise TemplateDoesNotExist(name, tried=tried)
 
     def from_string(self, template_code):
