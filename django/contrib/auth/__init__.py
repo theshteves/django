@@ -86,7 +86,7 @@ def authenticate(**credentials):
             credentials=_clean_credentials(credentials))
 
 
-ef login(request, user):
+def login(request, user):
     """
     Persist a user id and a backend in the request. This way a user doesn't
     have to reauthenticate on every request. Note that data set during
